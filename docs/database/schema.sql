@@ -186,7 +186,7 @@ CREATE TABLE users_budgets (
 
 CREATE TABLE budget_periods_start_days (
     budget_id UUID NOT NULL,
-    start_day SMALLINT NOT NULL,
+    start_day SMALLINT NOT NULL DEFAULT 1,
 
     PRIMARY KEY (budget_id, start_day),
 
@@ -265,6 +265,7 @@ CREATE TABLE account_book_details (
 CREATE TABLE expense_book_details (
     book_id INTEGER PRIMARY KEY,
     estimated_amount DECIMAL(18,2) NOT NULL,
+    adjusted_amount DECIMAL(18,2) NULL,
     control_level expense_book_details_control_level NOT NULL DEFAULT 'fixed',
     priority_level expense_book_details_priority_level NOT NULL DEFAULT 'needs',
     real_amount DECIMAL(18,2) NOT NULL,
@@ -289,10 +290,12 @@ CREATE TABLE saving_book_details (
     book_id INTEGER PRIMARY KEY,
     account_book_id INTEGER NOT NULL,
     goal_amount DECIMAL(18,2) NOT NULL,
+    period_amount DECIMAL(18,2) NOT NULL,
     saving_mode saving_book_details_saving_mode NOT NULL,
     is_emergency_savings BOOLEAN NOT NULL DEFAULT FALSE,
     start_date DATE NOT NULL,
     goal_date DATE NOT NULL,
+    priority SMALLINT NOT NULL DEFAULT 1,
     continue_if_fulfilled BOOLEAN NOT NULL,
     initial_balance DECIMAL(18,2) NOT NULL DEFAULT 0,
 
