@@ -1,0 +1,64 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Ignore temporary files
+*.tmp
+
+# Ignore build output
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Ignore environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.test.local
+.env.development.local
+.env.production.local
+.env.ci
+.env.ci.local
+
+# Ignore IDE and editor specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.user
+*.workspace
+*.code-workspace
+*.idea/
+*.vscode/ 
+
+# Ignore miscellaneous system files
+*.DS_Store
+Thumbs.db
+Desktop.ini
+Icon? 
+
+# Ignore miscellaneous system files
+*.bak
+*.swp
+*.tmp
+*.swp~
+*.swo
+*.orig
+*.rej
+
+# Ignore local runtime data
+uploads/
+tmp/
+
