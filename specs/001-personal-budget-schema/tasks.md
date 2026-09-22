@@ -17,12 +17,16 @@ description: "Task list for feature implementation"
 
 **Purpose**: Initialize the TypeScript/Node.js service and repository layout.
 
-- [ ] T001 Create the Clean Architecture source and test directories from the implementation plan: `src/config`, `src/domain/entities`, `src/domain/repositories`, `src/application/use-cases`, `src/infrastructure/db/migrations`, `src/infrastructure/repositories`, `src/infrastructure/auth`, `src/interfaces/http/routes`, `src/interfaces/http/controllers`, `src/interfaces/http/middlewares`, `src/interfaces/http/schemas`, `tests/unit`, and `tests/contract`
-- [ ] T002 Initialize `package.json` for Node.js 24 and TypeScript 5.x with Express, `pg`, `zod`, `jsonwebtoken`, `google-auth-library`, `dotenv`, `helmet`, `cors`, `tsx`, `supertest`, ESLint, and the Node.js built-in test runner dependencies/scripts defined in `specs/001-personal-budget-schema/research.md`
-- [ ] T003 [P] Create `tsconfig.json` with strict TypeScript settings, source-root compilation, and a production `dist/` output
-- [ ] T004 [P] Create `eslint.config.js` using the flat config with recommended `@typescript-eslint` type-checked rules and `eslint-config-prettier`
-- [ ] T005 [P] Create `.env.example` documenting `PORT`, `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, and `GOOGLE_CLIENT_ID`; ensure `.env` is ignored by `.gitignore`
-- [ ] T006 [P] Add the initial `src/interfaces/http/server.ts` entry point and npm `dev`, `build`, `start`, `lint`, `test:unit`, `test:contract`, `test`, and `migrate` scripts without putting `listen()` in the Express app factory
+- [x] T001 Create the Clean Architecture source and test directories from the implementation plan: `src/config`, `src/domain/entities`, `src/domain/repositories`, `src/application/use-cases`, `src/infrastructure/db/migrations`, `src/infrastructure/repositories`, `src/infrastructure/auth`, `src/interfaces/http/routes`, `src/interfaces/http/controllers`, `src/interfaces/http/middlewares`, `src/interfaces/http/schemas`, `tests/unit`, and `tests/contract`
+- [x] T002 Initialize `package.json` for Node.js 24 and TypeScript 5.x with Express, `pg`, `zod`, `jsonwebtoken`, `google-auth-library`, `dotenv`, `helmet`, `cors`, `tsx`, `supertest`, ESLint, and the Node.js built-in test runner dependencies/scripts defined in `specs/001-personal-budget-schema/research.md`
+- [x] T003 [P] Create `tsconfig.json` with strict TypeScript settings, source-root compilation, and a production `dist/` output
+- [x] T004 [P] Create `eslint.config.js` using the flat config with recommended `@typescript-eslint` type-checked rules and `eslint-config-prettier`
+- [x] T005 [P] Create `.env.example` documenting `PORT`, `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, and `GOOGLE_CLIENT_ID`; ensure `.env` is ignored by `.gitignore`
+- [x] T006 [P] Add the initial `src/interfaces/http/server.ts` entry point and npm `dev`, `build`, `start`, `lint`, `test:unit`, `test:contract`, `test`, and `migrate` scripts without putting `listen()` in the Express app factory
+
+### Phase 1 completion note
+
+The repository has been scaffolded for the TypeScript/Node.js backend, including the required project directories, configuration files, environment template, and a minimal Express app entry point. The Phase 1 setup tasks are complete and ready for the foundational Phase 2 implementation work.
 
 ---
 
