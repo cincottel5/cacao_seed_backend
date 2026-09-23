@@ -36,22 +36,22 @@ The repository has been scaffolded for the TypeScript/Node.js backend, including
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T007 Create `src/config/env.ts` to load `dotenv`, validate all required environment variables with Zod at startup, and expose typed configuration without ad-hoc `process.env` access
-- [ ] T008 [P] Create `src/infrastructure/db/pool.ts` with an injectable `pg.Pool` factory, safe shutdown support, and parameterized-query-only repository access
-- [ ] T009 [P] Create the first ordered migration under `src/infrastructure/db/migrations/001_initial_schema.sql` from `docs/database/schema.sql`, preserving all enums, tables, checks, foreign keys, unique constraints, indexes, and the `schema_migrations` tracking requirement; explicitly review the schema/document mismatch where `parent_expense_id` is `NOT NULL` in SQL but described as optional in `data-model.md`
-- [ ] T010 [P] Implement `src/infrastructure/db/migrate.ts` to create migration tracking metadata and apply numbered SQL files sequentially and transactionally, with a corresponding `npm run migrate` entry point
-- [ ] T011 [P] Add `src/domain/entities/shared.ts` and `src/domain/entities/user.ts` value types for UUIDs, ISO dates, supported currencies (`crc`/`usd`), and decimal-string money values so `DECIMAL(18,2)` is never handled as native floating-point arithmetic
-- [ ] T012 Create shared repository ports in `src/domain/repositories/` for users, settings, periods, budgets, memberships, books, transactions, occurrences, and schedules, using dependency injection and interfaces independent of `pg` and Express
-- [ ] T013 Create `src/interfaces/http/app.ts` with JSON parsing, `helmet`, configured `cors`, `/api/v1` routing, a health response, and centralized error handling; keep it importable by contract tests without opening a network listener
-- [ ] T014 [P] Implement `src/interfaces/http/middlewares/error-handler.ts` with the documented `{ error: { code, message, details } }` shape and mappings for validation, authentication, authorization, not-found, and conflict failures
-- [ ] T015 [P] Implement `src/interfaces/http/middlewares/validate.ts` for Zod request params, query, and body validation at every HTTP boundary
-- [ ] T016 [P] Implement `src/infrastructure/auth/google.ts` to verify Google ID tokens against `GOOGLE_CLIENT_ID` and return only verified identity claims
-- [ ] T017 [P] Implement `src/infrastructure/auth/jwt.ts` to issue and verify first-party JWTs using the configured secret and expiry, with a typed user subject
-- [ ] T018 Implement `src/interfaces/http/middlewares/auth.ts` to require `Authorization: Bearer <jwt>`, attach the authenticated user to the request, and return `401` for missing or invalid tokens
-- [ ] T019 Create shared pagination schemas/helpers in `src/interfaces/http/schemas/pagination.ts` enforcing defaults `page=1`, `pageSize=20`, and maximum `pageSize=100`
-- [ ] T020 Create shared authorization/membership policy helpers in `src/application/authorization/budget-permissions.ts` for the documented matrix: viewers may view only, members/admins may create/edit books and transactions, only admins manage members/delete budgets, and a budget must retain at least one member
-- [ ] T021 Implement `src/infrastructure/repositories/base-postgres-repository.ts` helpers for parameterized SQL, decimal-string mapping, pagination, and consistent not-found/conflict translation without N+1 list queries
-- [ ] T022 Add unit tests in `tests/unit/money.test.ts`, `tests/unit/authorization.test.ts`, and `tests/unit/pagination.test.ts` covering decimal-safe arithmetic, role permissions, last-member protection, and pagination bounds
+- [x] T007 Create `src/config/env.ts` to load `dotenv`, validate all required environment variables with Zod at startup, and expose typed configuration without ad-hoc `process.env` access
+- [x] T008 [P] Create `src/infrastructure/db/pool.ts` with an injectable `pg.Pool` factory, safe shutdown support, and parameterized-query-only repository access
+- [x] T009 [P] Create the first ordered migration under `src/infrastructure/db/migrations/001_initial_schema.sql` from `docs/database/schema.sql`, preserving all enums, tables, checks, foreign keys, unique constraints, indexes, and the `schema_migrations` tracking requirement; explicitly review the schema/document mismatch where `parent_expense_id` is `NOT NULL` in SQL but described as optional in `data-model.md`
+- [x] T010 [P] Implement `src/infrastructure/db/migrate.ts` to create migration tracking metadata and apply numbered SQL files sequentially and transactionally, with a corresponding `npm run migrate` entry point
+- [x] T011 [P] Add `src/domain/entities/shared.ts` and `src/domain/entities/user.ts` value types for UUIDs, ISO dates, supported currencies (`crc`/`usd`), and decimal-string money values so `DECIMAL(18,2)` is never handled as native floating-point arithmetic
+- [x] T012 Create shared repository ports in `src/domain/repositories/` for users, settings, periods, budgets, memberships, books, transactions, occurrences, and schedules, using dependency injection and interfaces independent of `pg` and Express
+- [x] T013 Create `src/interfaces/http/app.ts` with JSON parsing, `helmet`, configured `cors`, `/api/v1` routing, a health response, and centralized error handling; keep it importable by contract tests without opening a network listener
+- [x] T014 [P] Implement `src/interfaces/http/middlewares/error-handler.ts` with the documented `{ error: { code, message, details } }` shape and mappings for validation, authentication, authorization, not-found, and conflict failures
+- [x] T015 [P] Implement `src/interfaces/http/middlewares/validate.ts` for Zod request params, query, and body validation at every HTTP boundary
+- [x] T016 [P] Implement `src/infrastructure/auth/google.ts` to verify Google ID tokens against `GOOGLE_CLIENT_ID` and return only verified identity claims
+- [x] T017 [P] Implement `src/infrastructure/auth/jwt.ts` to issue and verify first-party JWTs using the configured secret and expiry, with a typed user subject
+- [x] T018 Implement `src/interfaces/http/middlewares/auth.ts` to require `Authorization: Bearer <jwt>`, attach the authenticated user to the request, and return `401` for missing or invalid tokens
+- [x] T019 Create shared pagination schemas/helpers in `src/interfaces/http/schemas/pagination.ts` enforcing defaults `page=1`, `pageSize=20`, and maximum `pageSize=100`
+- [x] T020 Create shared authorization/membership policy helpers in `src/application/authorization/budget-permissions.ts` for the documented matrix: viewers may view only, members/admins may create/edit books and transactions, only admins manage members/delete budgets, and a budget must retain at least one member
+- [x] T021 Implement `src/infrastructure/repositories/base-postgres-repository.ts` helpers for parameterized SQL, decimal-string mapping, pagination, and consistent not-found/conflict translation without N+1 list queries
+- [x] T022 Add unit tests in `tests/unit/money.test.ts`, `tests/unit/authorization.test.ts`, and `tests/unit/pagination.test.ts` covering decimal-safe arithmetic, role permissions, last-member protection, and pagination bounds
 
 **Checkpoint**: The service starts with validated configuration, can apply the authoritative schema, exposes a testable Express app, authenticates JWTs, validates requests, and has reusable repository/policy boundaries.
 

@@ -1,34 +1,24 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { errorHandler } from './middlewares/error-handler.js';
+import { env } from '../../config/env.js';
+import { createPool } from '../../infrastructure/db/pool.js';
+import { createHealthRouter } from './routes/health.js';
 
 const app = express();
+const pool = createPool();
 
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/v1/health', (_req: Request, res: Response) => {
-  res.json({ ok: true, service: 'personal-budget-api' });
+app.use('/api/v1', createHealthRouter(pool, env.ENVIRONMENT));
+
+app.use((_req, _res, next) => {
+  next(Object.assign(new Error('Route not found'), { code: 'not_found' }));
 });
 
-app.use(
-  (
-    err: Error & { status?: number; details?: unknown },
-    _req: Request,
-    res: Response,
-    _next: NextFunction
-  ) => {
-    const status = err.status ?? 500;
-
-    res.status(status).json({
-      error: {
-        code: status === 500 ? 'internal_error' : 'request_error',
-        message: err.message || 'Unexpected error',
-        details: err.details ?? null
-      }
-    });
-  }
-);
+app.use(errorHandler);
 
 export { app };

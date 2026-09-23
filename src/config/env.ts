@@ -1,15 +1,15 @@
 import 'dotenv/config';
-import process from 'node:process';
 import { z } from 'zod';
 
-const envSchema = z.object({
+const environmentSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   DATABASE_URL: z.string().min(1),
-  JWT_SECRET: z.string().min(16),
-  JWT_EXPIRES_IN: z.coerce.number().int().positive().default(3600),
-  GOOGLE_CLIENT_ID: z.string().min(1)
+  JWT_SECRET: z.string().min(1),
+  JWT_EXPIRES_IN: z.string().min(1).default('7d'),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  ENVIRONMENT: z.string().min(1).default('development')
 });
 
-export type AppEnv = z.infer<typeof envSchema>;
+export type Environment = z.infer<typeof environmentSchema>;
 
-export const env = envSchema.parse(process.env);
+export const env: Environment = environmentSchema.parse(process.env);

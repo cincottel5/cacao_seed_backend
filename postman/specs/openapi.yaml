@@ -1,0 +1,1624 @@
+openapi: 3.1.0
+info:
+  title: Cacao Seed API
+  version: 0.1.0
+  description: Personal budget management API
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local
+  - url: https://api.dev.cacaoseed.com/api/v1
+    description: Development
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items: {}
+          required:
+            - code
+            - message
+            - details
+
+    PaginatedMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 1
+        pageSize:
+          type: integer
+          default: 20
+        total:
+          type: integer
+      required:
+        - page
+        - pageSize
+        - total
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+        emailVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - name
+
+    UserSettings:
+      type: object
+      properties:
+        currency:
+          type: string
+        language:
+          type: string
+        periodsMode:
+          type: string
+        periodsStartDays:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 31
+        minimumPeriodDays:
+          type: integer
+          minimum: 1
+
+    Period:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+      required:
+        - id
+        - startDate
+        - endDate
+
+    Budget:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - personal
+            - household
+            - travel
+            - vacation
+        role:
+          type: string
+          enum:
+            - admin
+            - member
+            - viewer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+
+    BudgetMember:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum:
+            - admin
+            - member
+            - viewer
+      required:
+        - userId
+        - email
+        - name
+        - role
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - account
+            - expense
+            - saving
+            - debt
+            - investment
+        budgetId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - budgetId
+
+    BookScheduling:
+      type: object
+      properties:
+        frequency:
+          type: string
+          enum:
+            - each_week
+            - each_two_weeks
+            - each_month
+            - each_year
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        takeFromBookId:
+          type: string
+          format: uuid
+        automaticTransaction:
+          type: boolean
+      required:
+        - frequency
+        - startDate
+        - takeFromBookId
+        - automaticTransaction
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        currency:
+          type: string
+          enum:
+            - crc
+            - usd
+        type:
+          type: string
+        date:
+          type: string
+          format: date
+        takeInBookId:
+          type: string
+          format: uuid
+          nullable: true
+        takeFromBookId:
+          type: string
+          format: uuid
+          nullable: true
+        comments:
+          type: string
+          nullable: true
+        referenceNumber:
+          type: string
+          nullable: true
+        authorizationNumber:
+          type: string
+          nullable: true
+        merchant:
+          type: string
+          nullable: true
+        userCurrencyAmount:
+          type: number
+        exchangeRate:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - amount
+        - currency
+        - type
+
+    ExpenseOccurrence:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        expenseBookId:
+          type: string
+          format: uuid
+        periodId:
+          type: string
+          format: uuid
+        dueDate:
+          type: string
+          format: date
+        expectedAmount:
+          type: number
+        paidAmount:
+          type: number
+        status:
+          type: string
+          enum:
+            - pending
+            - partially_paid
+            - paid
+      required:
+        - id
+        - expenseBookId
+        - periodId
+        - dueDate
+        - expectedAmount
+        - paidAmount
+        - status
+
+  parameters:
+    budgetId:
+      name: budgetId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    bookId:
+      name: bookId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    transactionId:
+      name: transactionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient role
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                required:
+                  - status
+
+  /auth/google:
+    post:
+      summary: Exchange Google ID token for JWT
+      operationId: authGoogle
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idToken:
+                  type: string
+              required:
+                - idToken
+      responses:
+        '200':
+          description: Existing user authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                        format: email
+                      name:
+                        type: string
+                      avatarUrl:
+                        type: string
+                        format: uri
+                    required:
+                      - id
+                      - email
+                      - name
+                required:
+                  - token
+                  - user
+        '201':
+          description: New user created and authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                        format: email
+                      name:
+                        type: string
+                      avatarUrl:
+                        type: string
+                        format: uri
+                    required:
+                      - id
+                      - email
+                      - name
+                required:
+                  - token
+                  - user
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid or expired Google ID token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      summary: Get current user profile
+      operationId: getAuthMe
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/settings:
+    get:
+      summary: Get user settings
+      operationId: getUserSettings
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      summary: Update user settings
+      operationId: updateUserSettings
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currency:
+                  type: string
+                language:
+                  type: string
+                periodsMode:
+                  type: string
+                periodsStartDays:
+                  type: array
+                  items:
+                    type: integer
+                    minimum: 1
+                    maximum: 31
+                  minItems: 1
+                minimumPeriodDays:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Updated user settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /periods:
+    get:
+      summary: List periods
+      operationId: listPeriods
+      tags:
+        - Periods
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Paginated list of periods
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Period'
+                    required:
+                      - items
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /periods/current:
+    get:
+      summary: Get current period
+      operationId: getCurrentPeriod
+      tags:
+        - Periods
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: The caller's currently open period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Period'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets:
+    get:
+      summary: List budgets
+      operationId: listBudgets
+      tags:
+        - Budgets
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: Paginated list of budgets
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Budget'
+                    required:
+                      - items
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Create budget
+      operationId: createBudget
+      tags:
+        - Budgets
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                type:
+                  type: string
+                  enum:
+                    - personal
+                    - household
+                    - travel
+                    - vacation
+              required:
+                - name
+                - type
+      responses:
+        '201':
+          description: Budget created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /budgets/{budgetId}:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+
+    get:
+      summary: Get budget
+      operationId: getBudget
+      tags:
+        - Budgets
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Budget detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update budget
+      operationId: updateBudget
+      tags:
+        - Budgets
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                type:
+                  type: string
+                  enum:
+                    - personal
+                    - household
+                    - travel
+                    - vacation
+      responses:
+        '200':
+          description: Updated budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete budget
+      operationId: deleteBudget
+      tags:
+        - Budgets
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Budget soft-deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/members:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+
+    get:
+      summary: List budget members
+      operationId: listBudgetMembers
+      tags:
+        - Budget Members
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of budget members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BudgetMember'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      summary: Add budget member
+      operationId: addBudgetMember
+      tags:
+        - Budget Members
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - member
+                    - viewer
+              required:
+                - email
+                - role
+      responses:
+        '201':
+          description: Membership created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /budgets/{budgetId}/members/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+      - $ref: '#/components/parameters/userId'
+
+    patch:
+      summary: Update budget member role
+      operationId: updateBudgetMember
+      tags:
+        - Budget Members
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - member
+                    - viewer
+              required:
+                - role
+      responses:
+        '200':
+          description: Updated membership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Remove budget member
+      operationId: removeBudgetMember
+      tags:
+        - Budget Members
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Membership removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /budgets/{budgetId}/books:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+
+    get:
+      summary: List books
+      operationId: listBooks
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - account
+              - expense
+              - saving
+              - debt
+              - investment
+      responses:
+        '200':
+          description: Paginated list of books
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Book'
+                    required:
+                      - items
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      summary: Create book
+      operationId: createBook
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - title: Account Book
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - account
+                    name:
+                      type: string
+                    cardLastDigits:
+                      type: string
+                      minLength: 4
+                      maxLength: 4
+                  required:
+                    - type
+                    - name
+                    - cardLastDigits
+                - title: Expense Book
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - expense
+                    name:
+                      type: string
+                    estimatedAmount:
+                      type: number
+                    adjustedAmount:
+                      type: number
+                    controlLevel:
+                      type: string
+                    priorityLevel:
+                      type: string
+                    parentExpenseId:
+                      type: string
+                      format: uuid
+                    isSubscription:
+                      type: boolean
+                  required:
+                    - type
+                    - name
+                    - estimatedAmount
+                - title: Saving Book
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - saving
+                    name:
+                      type: string
+                    accountBookId:
+                      type: string
+                      format: uuid
+                    goalAmount:
+                      type: number
+                    savingMode:
+                      type: string
+                    periodAmount:
+                      type: number
+                    priority:
+                      type: integer
+                    isEmergencySavings:
+                      type: boolean
+                    startDate:
+                      type: string
+                      format: date
+                    goalDate:
+                      type: string
+                      format: date
+                    continueIfFulfilled:
+                      type: boolean
+                    initialBalance:
+                      type: number
+                  required:
+                    - type
+                    - name
+                    - accountBookId
+                    - goalAmount
+                    - savingMode
+                    - startDate
+                    - goalDate
+                    - continueIfFulfilled
+                - title: Debt Book
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - debt
+                    name:
+                      type: string
+                    originalDebtAmount:
+                      type: number
+                    installments:
+                      type: integer
+                    interestRate:
+                      type: number
+                  required:
+                    - type
+                    - name
+                    - originalDebtAmount
+                    - installments
+                    - interestRate
+                - title: Investment Book
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - investment
+                    name:
+                      type: string
+                  required:
+                    - type
+                    - name
+              discriminator:
+                propertyName: type
+      responses:
+        '201':
+          description: Book created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/books/{bookId}:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+      - $ref: '#/components/parameters/bookId'
+
+    get:
+      summary: Get book
+      operationId: getBook
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Book detail with type-specific details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update book
+      operationId: updateBook
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              description: >
+                name plus the same type-specific optional fields as create.
+                The book type itself is immutable.
+      responses:
+        '200':
+          description: Updated book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete book
+      operationId: deleteBook
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Book soft-deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/books/{bookId}/scheduling:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+      - $ref: '#/components/parameters/bookId'
+
+    get:
+      summary: Get book scheduling
+      operationId: getBookScheduling
+      tags:
+        - Book Scheduling
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Book scheduling configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookScheduling'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Set book scheduling
+      operationId: upsertBookScheduling
+      tags:
+        - Book Scheduling
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                frequency:
+                  type: string
+                  enum:
+                    - each_week
+                    - each_two_weeks
+                    - each_month
+                    - each_year
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+                takeFromBookId:
+                  type: string
+                  format: uuid
+                automaticTransaction:
+                  type: boolean
+              required:
+                - frequency
+                - startDate
+                - takeFromBookId
+                - automaticTransaction
+      responses:
+        '200':
+          description: Scheduling created or replaced
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookScheduling'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete book scheduling
+      operationId: deleteBookScheduling
+      tags:
+        - Book Scheduling
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Scheduling removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/transactions:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+
+    get:
+      summary: List transactions
+      operationId: listTransactions
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: bookId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: periodId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Paginated list of transactions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Transaction'
+                    required:
+                      - items
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      summary: Create transaction
+      operationId: createTransaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  enum:
+                    - crc
+                    - usd
+                type:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                takeInBookId:
+                  type: string
+                  format: uuid
+                takeFromBookId:
+                  type: string
+                  format: uuid
+                comments:
+                  type: string
+                referenceNumber:
+                  type: string
+                authorizationNumber:
+                  type: string
+                merchant:
+                  type: string
+              required:
+                - amount
+                - currency
+                - type
+              description: At least one of takeInBookId or takeFromBookId is required.
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/transactions/{transactionId}:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+      - $ref: '#/components/parameters/transactionId'
+
+    get:
+      summary: Get transaction
+      operationId: getTransaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Transaction detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update transaction
+      operationId: updateTransaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  enum:
+                    - crc
+                    - usd
+                date:
+                  type: string
+                  format: date
+                comments:
+                  type: string
+                referenceNumber:
+                  type: string
+                authorizationNumber:
+                  type: string
+                merchant:
+                  type: string
+              description: >
+                type and book references (takeInBookId, takeFromBookId) are
+                immutable after creation.
+      responses:
+        '200':
+          description: Updated transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete transaction
+      operationId: deleteTransaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Transaction deleted (hard delete)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/expense-occurrences:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+
+    get:
+      summary: List expense occurrences
+      operationId: listExpenseOccurrences
+      tags:
+        - Expense Occurrences
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: periodId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: At least one of periodId or bookId is required.
+        - name: bookId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: At least one of periodId or bookId is required.
+      responses:
+        '200':
+          description: Paginated list of expense occurrences
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ExpenseOccurrence'
+                    required:
+                      - items
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /budgets/{budgetId}/books/{bookId}/expense-occurrences:
+    parameters:
+      - $ref: '#/components/parameters/budgetId'
+      - $ref: '#/components/parameters/bookId'
+
+    post:
+      summary: Create expense occurrence
+      operationId: createExpenseOccurrence
+      tags:
+        - Expense Occurrences
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                periodId:
+                  type: string
+                  format: uuid
+                dueDate:
+                  type: string
+                  format: date
+              required:
+                - periodId
+                - dueDate
+              description: >
+                expectedAmount is snapshotted server-side from the expense's
+                active target amount.
+      responses:
+        '200':
+          description: Existing occurrence returned (idempotent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseOccurrence'
+        '201':
+          description: Expense occurrence created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseOccurrence'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+security:
+  - BearerAuth: []

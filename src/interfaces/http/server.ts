@@ -1,11 +1,9 @@
-import 'dotenv/config';
+import { env } from '../../config/env.js';
 import { app } from './app.js';
 
-const port = Number(process.env.PORT ?? '3000');
-
 export const startServer = () => {
-  return app.listen(port, () => {
-    console.log(`Personal budget API listening on port ${port}`);
+  return app.listen(env.PORT, () => {
+    console.log(`Personal budget API listening on port ${env.PORT}`);
   });
 };
 
