@@ -65,21 +65,21 @@ The repository has been scaffolded for the TypeScript/Node.js backend, including
 
 ### Tests for User Story 1
 
-- [ ] T023 [P] [US1] Add `tests/unit/period-lifecycle.test.ts` for first-transaction period creation, monthly/weekly/biweekly/range boundaries, on-demand minimum-day behavior, non-overlap, single-open-period enforcement, and invalid calendar days falling back to the month’s last day
-- [ ] T024 [P] [US1] Add `tests/contract/settings.get.test.ts` and `tests/contract/settings.update.test.ts` covering authenticated access, enum validation, non-empty `periodsStartDays` with every value in `1..31`, and `minimumPeriodDays > 0`
-- [ ] T025 [P] [US1] Add `tests/contract/periods.list.test.ts` and `tests/contract/periods.current.test.ts` covering pagination/date filters, newest-first ordering, authenticated access, and `404` before any transaction creates an open period
+- [x] T023 [P] [US1] Add `tests/unit/period-lifecycle.test.ts` for first-transaction period creation, monthly/weekly/biweekly/range boundaries, on-demand minimum-day behavior, non-overlap, single-open-period enforcement, and invalid calendar days falling back to the month’s last day
+- [x] T024 [P] [US1] Add `tests/contract/settings.get.test.ts` and `tests/contract/settings.update.test.ts` covering authenticated access, enum validation, non-empty `periodsStartDays` with every value in `1..31`, and `minimumPeriodDays > 0`
+- [x] T025 [P] [US1] Add `tests/contract/periods.list.test.ts` and `tests/contract/periods.current.test.ts` covering pagination/date filters, newest-first ordering, authenticated access, and `404` before any transaction creates an open period
 - [ ] T026 [P] [US1] Add `tests/contract/transactions.create-period.test.ts` covering transaction validation, first-period creation, period assignment, and the fixed/on-demand lifecycle side effect
 
 ### Implementation for User Story 1
 
-- [ ] T027 [P] [US1] Define user and settings entities plus repository adapters in `src/domain/entities/user.ts`, `src/domain/entities/user-settings.ts`, `src/infrastructure/repositories/user-repository.ts`, and `src/infrastructure/repositories/user-settings-repository.ts`, enforcing the SQL constraints `periods_start_days` non-empty with each day in `1..31` and `minimum_period_days > 0`
-- [ ] T028 [P] [US1] Implement period boundary strategies in `src/domain/entities/period-boundary.ts` for `each_month`, `biweekly`, `weekly`, `range`, and `at_demand`, including the rule that a nonexistent day such as 31 in February resolves to the month’s last day
-- [ ] T029 [US1] Implement `src/application/use-cases/evaluate-period-lifecycle.ts` to create the first period before a transaction, close/open fixed periods, open an on-demand period only when elapsed days are at least `minimum_period_days`, and enforce non-overlap/single-open invariants
-- [ ] T030 [US1] Implement `src/infrastructure/repositories/period-repository.ts` with user-scoped indexed queries, transactional close/open operations, and paginated period/date-filter retrieval
-- [ ] T031 [US1] Implement `src/application/use-cases/update-user-settings.ts` and the settings schemas/controllers/routes in `src/interfaces/http/schemas/settings.ts`, `src/interfaces/http/controllers/settings-controller.ts`, and `src/interfaces/http/routes/settings.ts`
-- [ ] T032 [US1] Implement `src/application/use-cases/list-periods.ts` and `src/interfaces/http/controllers/period-controller.ts` plus `src/interfaces/http/routes/periods.ts` for `GET /api/v1/periods` and `GET /api/v1/periods/current`
-- [ ] T033 [US1] Implement the authenticated Google exchange flow in `src/application/use-cases/authenticate-google-user.ts`, `src/interfaces/http/schemas/auth.ts`, `src/interfaces/http/controllers/auth-controller.ts`, and `src/interfaces/http/routes/auth.ts`, including user upsert, default settings creation, `201` on first login, and `200` for existing users
-- [ ] T034 [US1] Implement `src/interfaces/http/controllers/me-controller.ts` and `src/interfaces/http/routes/me.ts` for `GET /api/v1/auth/me`, returning the documented profile fields
+- [x] T027 [P] [US1] Define user and settings entities plus repository adapters in `src/domain/entities/user.ts`, `src/domain/entities/user-settings.ts`, `src/infrastructure/repositories/user-repository.ts`, and `src/infrastructure/repositories/user-settings-repository.ts`, enforcing the SQL constraints `periods_start_days` non-empty with each day in `1..31` and `minimum_period_days > 0`
+- [x] T028 [P] [US1] Implement period boundary strategies in `src/domain/entities/period-boundary.ts` for `each_month`, `biweekly`, `weekly`, `range`, and `at_demand`, including the rule that a nonexistent day such as 31 in February resolves to the month’s last day
+- [x] T029 [US1] Implement `src/application/use-cases/evaluate-period-lifecycle.ts` to create the first period before a transaction, close/open fixed periods, open an on-demand period only when elapsed days are at least `minimum_period_days`, and enforce non-overlap/single-open invariants
+- [x] T030 [US1] Implement `src/infrastructure/repositories/period-repository.ts` with user-scoped indexed queries, transactional close/open operations, and paginated period/date-filter retrieval
+- [x] T031 [US1] Implement `src/application/use-cases/update-user-settings.ts` and the settings schemas/controllers/routes in `src/interfaces/http/schemas/settings.ts`, `src/interfaces/http/controllers/settings-controller.ts`, and `src/interfaces/http/routes/settings.ts`
+- [x] T032 [US1] Implement `src/application/use-cases/list-periods.ts` and `src/interfaces/http/controllers/period-controller.ts` plus `src/interfaces/http/routes/periods.ts` for `GET /api/v1/periods` and `GET /api/v1/periods/current`
+- [x] T033 [US1] Implement the authenticated Google exchange flow in `src/application/use-cases/authenticate-google-user.ts`, `src/interfaces/http/schemas/auth.ts`, `src/interfaces/http/controllers/auth-controller.ts`, and `src/interfaces/http/routes/auth.ts`, including user upsert, default settings creation, `201` on first login, and `200` for existing users
+- [x] T034 [US1] Implement `src/interfaces/http/controllers/me-controller.ts` and `src/interfaces/http/routes/me.ts` for `GET /api/v1/auth/me`, returning the documented profile fields
 
 **Checkpoint**: A user can authenticate, configure settings, record the first transaction through the later transaction flow, and inspect the resulting shared period timeline independently of budgets.
 

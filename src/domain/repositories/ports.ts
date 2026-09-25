@@ -1,5 +1,6 @@
 import type { User, UserSettings } from '../entities/user.js';
 import type { UUID } from '../entities/shared.js';
+import type { Period, PeriodPage } from '../entities/period.js';
 
 export interface UserRepository {
   findById(id: UUID): Promise<User | null>;
@@ -14,8 +15,10 @@ export interface UserSettingsRepository {
 }
 
 export interface PeriodRepository {
-  findCurrent(userId: UUID): Promise<Record<string, unknown> | null>;
-  list(userId: UUID, options: { page: number; pageSize: number; from?: string; to?: string }): Promise<Record<string, unknown>>;
+  findCurrent(userId: UUID): Promise<Period | null>;
+  list(userId: UUID, options: { page: number; pageSize: number; from?: string; to?: string }): Promise<PeriodPage>;
+  create(period: Period): Promise<Period>;
+  close(id: UUID, endDate: string): Promise<Period>;
 }
 
 export interface BudgetRepository {
